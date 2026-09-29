@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2
+
+- Include X and LinkedIn drafts in campaign packs and manual queue jobs.
+- Add new platform jobs to existing queues without moving their launch dates.
+
 ## 0.1.1
 
 - Mirror Desktop launch materials into an application directory so macOS launchd can run the queue.

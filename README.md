@@ -2,9 +2,9 @@
 
 Prepare, schedule, and track open-source launch posts from a workspace of public repositories.
 
-On September 30, 2026, one local run prepared **16 public projects and 63 queue jobs** from 16 launch kits.[^measure] The queue keeps existing dates when more projects are published. Live Reddit posting stays gated until approved API access, account eligibility, and a current community rule review are present.
+On September 30, 2026, one local run prepared **18 public projects and 107 queue jobs** from 18 launch kits.[^measure] The queue keeps existing dates when more projects are published. Live Reddit posting stays gated until approved API access, account eligibility, and a current community rule review are present.
 
-[![CI](https://github.com/Arthur031221/oss-launchbot/actions/workflows/ci.yml/badge.svg)](https://github.com/Arthur031221/oss-launchbot/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![Version](https://img.shields.io/badge/version-0.1.1-blue.svg)](CHANGELOG.md)
+[![CI](https://github.com/Arthur031221/oss-launchbot/actions/workflows/ci.yml/badge.svg)](https://github.com/Arthur031221/oss-launchbot/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![Version](https://img.shields.io/badge/version-0.1.2-blue.svg)](CHANGELOG.md)
 
 ![Launch queue demonstration](demo/demo.gif)
 
@@ -27,11 +27,11 @@ oss-launchbot --workspace /path/to/workspace refresh
 oss-launchbot --workspace /path/to/workspace --json run-due
 ```
 
-The first command writes `.launchbot/campaigns.json`, `.launchbot/queue.json`, and one Markdown pack per project. The second checks due Reddit jobs without submitting. It reports held jobs when policy approval is absent. Generated files live outside this repository's tracked source.
+The first command writes `.launchbot/campaigns.json`, `.launchbot/queue.json`, and one Markdown pack per project. Packs include Show HN, X, LinkedIn, Reddit, and Product Hunt material when the source kit provides it. The second checks due Reddit jobs without submitting. It reports held jobs when policy approval is absent. Generated files live outside this repository's tracked source.
 
 ## How it works
 
-The parser extracts Show HN and Reddit drafts from existing launch kits. A README pitch becomes a Product Hunt description candidate. Short taglines can be curated in `launch/product-hunt-taglines.json`. The queue gives time-sensitive projects from the workspace launch plan priority, spaces project windows by two weekdays at 10:00 US Eastern, and preserves old due dates across refreshes. Hacker News and Product Hunt jobs are marked `manual_submission` because their public APIs do not provide a general self-service post creation path. Reddit uses its approved OAuth API only when all local gates pass.
+The parser extracts Show HN, X, LinkedIn, and Reddit drafts from existing launch kits. A README pitch becomes a Product Hunt description candidate. Short taglines can be curated in `launch/product-hunt-taglines.json`. The queue gives time-sensitive projects from the workspace launch plan priority, spaces project windows by two weekdays at 10:00 US Eastern, and preserves old due dates across refreshes. Hacker News and Product Hunt jobs are marked `manual_submission` because their public APIs do not provide a general self-service post creation path. X and LinkedIn are also marked manual because no accounts are connected. Reddit uses its approved OAuth API only when all local gates pass.
 
 | Workflow | What it does | What it leaves to the owner |
 | --- | --- | --- |
@@ -51,7 +51,7 @@ On macOS, clone this repository and run `python3 scripts/install_launchd.py --wo
 
 **Does this create social accounts?** No. Reddit, Hacker News, and Product Hunt require a real account and their own access or onboarding steps. This tool does not bypass them.
 
-**Does this publish to Hacker News or Product Hunt?** No. It prepares title, URL, and text in `.launchbot/packs/`. Submit those through the platforms' web interfaces when the maintainer can answer comments.
+**Does this publish to Hacker News, Product Hunt, X, or LinkedIn?** No. It prepares title, URL, and text in `.launchbot/packs/`. Submit those through the platforms' web interfaces when the maintainer can answer comments or connect an approved account workflow.
 
 **Can it post to any subreddit?** No. `r/programming` and `r/opensource` are blocked due to current rules affecting these drafts. Other communities require a recent explicit review and approved Reddit API access. The rule file is deliberately not auto-approved.
 

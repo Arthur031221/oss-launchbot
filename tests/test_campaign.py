@@ -37,6 +37,8 @@ class CampaignTests(unittest.TestCase):
         (self.root / "launch" / "sample.md").write_text(
             "# Launch\n\n## Show HN draft\n\nTitle: Show HN: sample\n\n"
             "First comment:\n\n> It checks a sample.\n\nPosting note: Do not paste this.\n\n"
+            "## X thread draft\n\n1. Sample announcement.\n\n"
+            "## LinkedIn draft\n\nA sample announcement.\n\n"
             "## Reddit drafts\n\n### r/examplecommunity\n\nTitle: Sample check\n\n"
             "Body: A useful example. Repo: https://github.com/Arthur031221/sample\n"
         )
@@ -46,6 +48,8 @@ class CampaignTests(unittest.TestCase):
         self.assertEqual(result["published_projects"], 1)
         item = result["campaigns"][0]
         self.assertEqual(item["show_hn"]["first_comment"], "It checks a sample.")
+        self.assertIn("Sample announcement", item["x_thread"])
+        self.assertIn("sample announcement", item["linkedin"])
         self.assertEqual(item["reddit"][0]["subreddit"], "examplecommunity")
         self.assertEqual(item["product_hunt"]["tagline"], "Checks a sample")
         self.assertEqual(item["product_hunt"]["description"], "Checks a sample.")
@@ -61,12 +65,15 @@ class CampaignTests(unittest.TestCase):
         )
         start = datetime(2026, 9, 29, 9, tzinfo=ZoneInfo("America/New_York"))
         jobs = schedule([item], start)
-        self.assertEqual(len(jobs), 3)
+        self.assertEqual(len(jobs), 5)
         self.assertEqual(jobs[0]["status"], "manual_submission")
-        self.assertEqual(jobs[2]["status"], "awaiting_access_and_rules")
+        self.assertEqual(jobs[-1]["status"], "awaiting_access_and_rules")
         self.assertEqual(merge_schedule([item], jobs, start), jobs)
+        old_jobs = [job for job in jobs if job["platform"] not in {"x", "linkedin"}]
+        merged = merge_schedule([item], old_jobs, start)
+        self.assertEqual({job["platform"] for job in merged}, {job["platform"] for job in jobs})
         summary = refresh(self.root, self.root / "out")
-        self.assertEqual(summary["queue_jobs"], 3)
+        self.assertEqual(summary["queue_jobs"], 5)
         first = json.loads((self.root / "out" / "queue.json").read_text())
         refresh(self.root, self.root / "out")
         second = json.loads((self.root / "out" / "queue.json").read_text())

@@ -142,6 +142,8 @@ def campaign(workspace: Path, item: dict[str, Any]) -> dict[str, Any]:
         "project": item["project"],
         "repo": item["repo"],
         "show_hn": {"title": _field(show_hn, "Title"), "first_comment": _first_comment(show_hn)},
+        "x_thread": _section(text, "X thread"),
+        "linkedin": _section(text, "LinkedIn"),
         "reddit": _reddit_drafts(reddit),
         "product_hunt": {
             "name": item["project"],
@@ -202,6 +204,17 @@ def schedule(campaigns: list[dict[str, Any]], start: datetime) -> list[dict[str,
                 "status": "manual_submission",
             }
         )
+        for platform, field in (("x", "x_thread"), ("linkedin", "linkedin")):
+            if item[field]:
+                jobs.append(
+                    {
+                        "id": f"{item['project']}:{platform}",
+                        "project": item["project"],
+                        "platform": platform,
+                        "due_at": local.isoformat(),
+                        "status": "manual_submission",
+                    }
+                )
         for draft in item["reddit"]:
             jobs.append(
                 {
@@ -225,8 +238,27 @@ def merge_schedule(
     known = {job["id"] for job in existing}
     projects = {job["project"] for job in existing}
     new_campaigns = [item for item in campaigns if item["project"] not in projects]
-    if not new_campaigns:
-        return existing
+    additions = []
+    for item in campaigns:
+        if item["project"] not in projects:
+            continue
+        due = next(job["due_at"] for job in existing if job["project"] == item["project"])
+        for platform, field in (("x", "x_thread"), ("linkedin", "linkedin")):
+            identifier = f"{item['project']}:{platform}"
+            if item[field] and identifier not in known:
+                additions.append(
+                    {
+                        "id": identifier,
+                        "project": item["project"],
+                        "platform": platform,
+                        "due_at": due,
+                        "status": "manual_submission",
+                    }
+                )
+                known.add(identifier)
     last = max((datetime.fromisoformat(job["due_at"]) for job in existing), default=start)
-    additions = schedule(new_campaigns, max(start, last))
-    return existing + [job for job in additions if job["id"] not in known]
+    for job in schedule(new_campaigns, max(start, last)):
+        if job["id"] not in known:
+            additions.append(job)
+            known.add(job["id"])
+    return existing + additions
