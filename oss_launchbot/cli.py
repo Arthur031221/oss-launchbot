@@ -50,7 +50,9 @@ def _pack(item: dict[str, Any]) -> str:
         "",
         f"Name: {ph['name']}",
         f"Tagline candidate: {ph['tagline']}",
+        f"Description candidate: {ph['description']}",
         f"URL: {ph['url']}",
+        "A square thumbnail and account submission are still required.",
         "",
     ]
     for draft in item["reddit"]:

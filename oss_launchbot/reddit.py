@@ -13,11 +13,16 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
+from . import __version__
 from .campaign import BLOCKED_SUBREDDITS
 
 
 class PostingError(RuntimeError):
     """Posting could not be completed or verified."""
+
+
+def _user_agent() -> str:
+    return f"macos:oss-launchbot:{__version__} (by /u/{os.environ['REDDIT_USERNAME']})"
 
 
 def _read_json(path: Path, default: dict[str, Any]) -> dict[str, Any]:
@@ -97,7 +102,7 @@ def _access_token() -> str:
         {
             "Authorization": f"Basic {basic}",
             "Content-Type": "application/x-www-form-urlencoded",
-            "User-Agent": f"macos:oss-launchbot:0.1.0 (by /u/{os.environ['REDDIT_USERNAME']})",
+            "User-Agent": _user_agent(),
         },
     )
     token = result.get("access_token")
@@ -124,7 +129,7 @@ def _submit(subreddit: str, title: str, body: str, token: str) -> str:
         {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/x-www-form-urlencoded",
-            "User-Agent": f"macos:oss-launchbot:0.1.0 (by /u/{os.environ['REDDIT_USERNAME']})",
+            "User-Agent": _user_agent(),
         },
     )
     response = result.get("json", {})

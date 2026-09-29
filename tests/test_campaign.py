@@ -1,4 +1,6 @@
 import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from datetime import datetime
@@ -45,7 +47,8 @@ class CampaignTests(unittest.TestCase):
         item = result["campaigns"][0]
         self.assertEqual(item["show_hn"]["first_comment"], "It checks a sample.")
         self.assertEqual(item["reddit"][0]["subreddit"], "examplecommunity")
-        self.assertEqual(item["product_hunt"]["tagline"], "Checks a sample.")
+        self.assertEqual(item["product_hunt"]["tagline"], "Checks a sample")
+        self.assertEqual(item["product_hunt"]["description"], "Checks a sample.")
 
     def test_schedule_is_spaced_and_persistent(self):
         item = campaign(
@@ -69,6 +72,23 @@ class CampaignTests(unittest.TestCase):
         second = json.loads((self.root / "out" / "queue.json").read_text())
         self.assertEqual(first["jobs"], second["jobs"])
         self.assertTrue((self.root / "out" / "packs" / "sample.md").exists())
+
+    def test_mirror_imports_published_materials(self):
+        (self.root / "launch" / "product-hunt-taglines.json").write_text(
+            json.dumps({"sample": "Sample checker"})
+        )
+        mirror = self.root / "mirror"
+        script = Path(__file__).resolve().parents[1] / "scripts" / "sync_workspace.py"
+        subprocess.run(
+            [sys.executable, str(script), "--workspace", str(self.root), "--mirror", str(mirror)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        result = prepare(mirror)
+        self.assertEqual(result["prepared_projects"], 1)
+        self.assertEqual(result["campaigns"][0]["product_hunt"]["tagline"], "Sample checker")
+        self.assertFalse((mirror / "unfinished").exists())
 
 
 if __name__ == "__main__":

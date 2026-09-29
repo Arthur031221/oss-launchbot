@@ -4,7 +4,7 @@ Prepare, schedule, and track open-source launch posts from a workspace of public
 
 On September 30, 2026, one local run prepared **16 public projects and 63 queue jobs** from 16 launch kits.[^measure] The queue keeps existing dates when more projects are published. Live Reddit posting stays gated until approved API access, account eligibility, and a current community rule review are present.
 
-[![CI](https://github.com/Arthur031221/oss-launchbot/actions/workflows/ci.yml/badge.svg)](https://github.com/Arthur031221/oss-launchbot/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](CHANGELOG.md)
+[![CI](https://github.com/Arthur031221/oss-launchbot/actions/workflows/ci.yml/badge.svg)](https://github.com/Arthur031221/oss-launchbot/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![Version](https://img.shields.io/badge/version-0.1.1-blue.svg)](CHANGELOG.md)
 
 ![Launch queue demonstration](demo/demo.gif)
 
@@ -31,7 +31,7 @@ The first command writes `.launchbot/campaigns.json`, `.launchbot/queue.json`, a
 
 ## How it works
 
-The parser extracts Show HN and Reddit drafts from existing launch kits. A README pitch becomes a Product Hunt tagline candidate. The queue gives time-sensitive projects from the workspace launch plan priority, spaces project windows by two weekdays at 10:00 US Eastern, and preserves old due dates across refreshes. Hacker News and Product Hunt jobs are marked `manual_submission` because their public APIs do not provide a general self-service post creation path. Reddit uses its approved OAuth API only when all local gates pass.
+The parser extracts Show HN and Reddit drafts from existing launch kits. A README pitch becomes a Product Hunt description candidate. Short taglines can be curated in `launch/product-hunt-taglines.json`. The queue gives time-sensitive projects from the workspace launch plan priority, spaces project windows by two weekdays at 10:00 US Eastern, and preserves old due dates across refreshes. Hacker News and Product Hunt jobs are marked `manual_submission` because their public APIs do not provide a general self-service post creation path. Reddit uses its approved OAuth API only when all local gates pass.
 
 | Workflow | What it does | What it leaves to the owner |
 | --- | --- | --- |
@@ -45,7 +45,7 @@ The parser extracts Show HN and Reddit drafts from existing launch kits. A READM
 
 For live Reddit submission, create `<workspace>/.launchbot/policy.json` from `policy.example.json`. Set `allows_project_post` only after checking the current subreddit rules. Set `original_content_ok` only when the post satisfies the community's original-content requirements. The review date must be within seven days. Then provide `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `REDDIT_REFRESH_TOKEN`, `REDDIT_USERNAME`, `REDDIT_API_APPROVED=1`, and `REDDIT_ACCOUNT_ELIGIBLE=1` to the scheduled process. Do not put tokens in the policy file, launchd plist, or repository. A confirmed or uncertain Reddit attempt is never retried automatically. The ledger also enforces seven days between project promotions.
 
-On macOS, clone this repository and run `python3 scripts/install_launchd.py --workspace /path/to/workspace` from the clone. It installs a six-hour launchd cycle. Each cycle refreshes the queue and checks due Reddit jobs. Without approved access or policy entries it only prepares materials and records held status in `.launchbot/last_run.json`. If approved Reddit credentials become available, put the six environment exports in `~/.config/oss-launchbot/reddit.env` with permission mode `600`. This private file is read by the cycle script and is never committed.
+On macOS, clone this repository and run `python3 scripts/install_launchd.py --workspace /path/to/workspace` from the clone. It installs a 15-minute launchd cycle. Each cycle refreshes the queue and checks due Reddit jobs. macOS may deny launchd access to a workspace on Desktop, so the installer copies published launch materials to `~/Library/Application Support/oss-launchbot/workspace`. A detached `screen` session syncs new public projects into that mirror every 15 minutes while the Mac remains on. The mirror keeps the posting ledger and queue. Without approved access or policy entries the cycle only prepares materials and records held status. If approved Reddit credentials become available, put the six environment exports in `~/.config/oss-launchbot/reddit.env` with permission mode `600`. This private file is read by the cycle script and is never committed.
 
 ## Limits and FAQ
 

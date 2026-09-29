@@ -114,11 +114,30 @@ def _readme_pitch(workspace: Path, project: str) -> str:
     return ""
 
 
+def _tagline(text: str, pitch: str) -> str:
+    match = re.search(r"(?im)^One-liner:\s*(.+)$", text)
+    candidate = match.group(1) if match else pitch
+    candidate = re.sub(r"`([^`]+)`|\*\*([^*]+)\*\*", lambda m: m.group(1) or m.group(2), candidate)
+    candidate = candidate.split(". ", 1)[0].strip().rstrip(".")
+    if len(candidate) <= 60:
+        return candidate
+    return candidate[:61].rsplit(" ", 1)[0].rstrip(" ,:;-")
+
+
 def campaign(workspace: Path, item: dict[str, Any]) -> dict[str, Any]:
     """Extract platform-specific drafts without generating new claims."""
     text = Path(item["kit"]).read_text(encoding="utf-8")
     show_hn = _section(text, "Show HN")
     reddit = _section(text, "Reddit")
+    pitch = _readme_pitch(workspace, item["project"])
+    override_file = workspace / "launch" / "product-hunt-taglines.json"
+    overrides = (
+        json.loads(override_file.read_text(encoding="utf-8")) if override_file.exists() else {}
+    )
+    override = overrides.get(item["project"], "")
+    tagline = (
+        override if isinstance(override, str) and 0 < len(override) <= 60 else _tagline(text, pitch)
+    )
     return {
         "project": item["project"],
         "repo": item["repo"],
@@ -126,7 +145,8 @@ def campaign(workspace: Path, item: dict[str, Any]) -> dict[str, Any]:
         "reddit": _reddit_drafts(reddit),
         "product_hunt": {
             "name": item["project"],
-            "tagline": _readme_pitch(workspace, item["project"]),
+            "tagline": tagline,
+            "description": pitch,
             "url": item["repo"],
         },
     }

@@ -4,8 +4,11 @@ from __future__ import annotations
 
 import argparse
 import plistlib
+import shutil
 import subprocess
 from pathlib import Path
+
+from sync_workspace import copy_file, sync
 
 LABEL = "com.arthur.oss-launchbot"
 
@@ -17,7 +20,21 @@ def main() -> int:
     workspace = args.workspace.resolve()
     if not (workspace / "dashboard" / "status.json").is_file():
         parser.error("workspace must contain dashboard/status.json")
-    script = Path(__file__).resolve().with_name("launchbot-cycle.sh")
+    project = Path(__file__).resolve().parents[1]
+    base = Path.home() / "Library" / "Application Support" / "oss-launchbot"
+    runtime = base / "runtime"
+    mirror = base / "workspace"
+    package = runtime / "oss_launchbot"
+    if package.exists():
+        shutil.rmtree(package)
+    shutil.copytree(
+        project / "oss_launchbot", package, ignore=shutil.ignore_patterns("__pycache__")
+    )
+    script = runtime / "scripts" / "launchbot-cycle.sh"
+    copy_file(project / "scripts" / "launchbot-cycle.sh", script)
+    sync(workspace, mirror)
+    for filename in ("campaigns.json", "queue.json", "last_run.json", "policy.json", "posts.json"):
+        copy_file(workspace / ".launchbot" / filename, mirror / ".launchbot" / filename)
     directory = Path.home() / "Library" / "LaunchAgents"
     directory.mkdir(parents=True, exist_ok=True)
     logs = Path.home() / ".local" / "state" / "oss-launchbot"
@@ -25,9 +42,9 @@ def main() -> int:
     target = directory / f"{LABEL}.plist"
     agent = {
         "Label": LABEL,
-        "ProgramArguments": ["/bin/zsh", str(script), str(workspace)],
+        "ProgramArguments": ["/bin/zsh", str(script), str(mirror)],
         "RunAtLoad": True,
-        "StartInterval": 21600,
+        "StartInterval": 900,
         "StandardOutPath": str(logs / "stdout.log"),
         "StandardErrorPath": str(logs / "stderr.log"),
     }
@@ -35,7 +52,28 @@ def main() -> int:
     domain = f"gui/{subprocess.check_output(['/usr/bin/id', '-u'], text=True).strip()}"
     subprocess.run(["/bin/launchctl", "bootout", f"{domain}/{LABEL}"], capture_output=True)
     subprocess.run(["/bin/launchctl", "bootstrap", domain, str(target)], check=True)
+    screen = shutil.which("screen")
+    if screen:
+        sessions = subprocess.run([screen, "-ls"], capture_output=True, text=True).stdout
+        if "oss-launchbot-sync" in sessions:
+            subprocess.run([screen, "-S", "oss-launchbot-sync", "-X", "quit"], check=True)
+        subprocess.run(
+            [
+                screen,
+                "-dmS",
+                "oss-launchbot-sync",
+                shutil.which("python3") or "/usr/bin/python3",
+                str(project / "scripts" / "sync_workspace.py"),
+                "--workspace",
+                str(workspace),
+                "--mirror",
+                str(mirror),
+                "--loop",
+            ],
+            check=True,
+        )
     print(f"Installed {target}")
+    print(f"Workspace mirror: {mirror}")
     return 0
 
 
