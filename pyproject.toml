@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=75,<81"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "oss-launchbot"
+version = "0.1.0"
+description = "A policy-aware launch queue for open-source repositories"
+requires-python = ">=3.11"
+authors = [{name = "Arthur"}]
+license = {text = "MIT"}
+dependencies = []
+
+[project.scripts]
+oss-launchbot = "oss_launchbot.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["oss_launchbot*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

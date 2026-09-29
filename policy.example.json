@@ -1,0 +1,9 @@
+{
+  "subreddits": {
+    "examplecommunity": {
+      "allows_project_post": false,
+      "original_content_ok": false,
+      "rules_checked_on": "2026-09-30"
+    }
+  }
+}
