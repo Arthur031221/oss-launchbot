@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3
+
+- Keep only one workspace sync process when the macOS agent is reinstalled.
+- Lock the mirror so overlapping sync processes cannot write it together.
+
 ## 0.1.2
 
 - Include X and LinkedIn drafts in campaign packs and manual queue jobs.

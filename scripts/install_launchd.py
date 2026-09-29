@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import argparse
+import os
 import plistlib
 import shutil
+import signal
 import subprocess
+import time
 from pathlib import Path
 
 from sync_workspace import copy_file, sync
@@ -54,9 +57,19 @@ def main() -> int:
     subprocess.run(["/bin/launchctl", "bootstrap", domain, str(target)], check=True)
     screen = shutil.which("screen")
     if screen:
-        sessions = subprocess.run([screen, "-ls"], capture_output=True, text=True).stdout
-        if "oss-launchbot-sync" in sessions:
-            subprocess.run([screen, "-S", "oss-launchbot-sync", "-X", "quit"], check=True)
+        match = str(project / "scripts" / "sync_workspace.py")
+        processes = subprocess.run(
+            ["/usr/bin/pgrep", "-f", match], capture_output=True, text=True
+        ).stdout
+        for line in processes.splitlines():
+            pid = int(line)
+            if pid != os.getpid():
+                try:
+                    os.kill(pid, signal.SIGTERM)
+                except ProcessLookupError:
+                    pass
+        time.sleep(0.2)
+        subprocess.run([screen, "-wipe"], capture_output=True)
         subprocess.run(
             [
                 screen,

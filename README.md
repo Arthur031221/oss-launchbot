@@ -4,7 +4,7 @@ Prepare, schedule, and track open-source launch posts from a workspace of public
 
 On September 30, 2026, one local run prepared **18 public projects and 107 queue jobs** from 18 launch kits.[^measure] The queue keeps existing dates when more projects are published. Live Reddit posting stays gated until approved API access, account eligibility, and a current community rule review are present.
 
-[![CI](https://github.com/Arthur031221/oss-launchbot/actions/workflows/ci.yml/badge.svg)](https://github.com/Arthur031221/oss-launchbot/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![Version](https://img.shields.io/badge/version-0.1.2-blue.svg)](CHANGELOG.md)
+[![CI](https://github.com/Arthur031221/oss-launchbot/actions/workflows/ci.yml/badge.svg)](https://github.com/Arthur031221/oss-launchbot/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![Version](https://img.shields.io/badge/version-0.1.3-blue.svg)](CHANGELOG.md)
 
 ![Launch queue demonstration](demo/demo.gif)
 

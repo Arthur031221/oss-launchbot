@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import fcntl
 import json
 import shutil
 import time
@@ -51,6 +52,13 @@ def main() -> int:
     parser.add_argument("--mirror", type=Path, required=True)
     parser.add_argument("--loop", action="store_true")
     args = parser.parse_args()
+    args.mirror.mkdir(parents=True, exist_ok=True)
+    lock = (args.mirror / ".sync.lock").open("w")
+    try:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        print("Another workspace sync is already running", flush=True)
+        return 1
     while True:
         try:
             count = sync(args.workspace, args.mirror)
