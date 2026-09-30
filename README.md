@@ -59,6 +59,12 @@ On macOS, clone this repository and run `python3 scripts/install_launchd.py --wo
 
 Platform references: [Reddit Responsible Builder Policy](https://support.reddithelp.com/hc/en-us/articles/42728983564564-Responsible-Builder-Policy), [Reddit API](https://www.reddit.com/dev/api/), [Show HN guidelines](https://news.ycombinator.com/showhn.html), [Hacker News API](https://github.com/HackerNews/API), [Product Hunt API](https://api.producthunt.com/v2/docs), and [Product Hunt posting guide](https://help.producthunt.com/en/articles/479557-how-to-post-a-product).
 
+## Related projects
+
+- [cliffhanger](https://github.com/Arthur031221/cliffhanger): Same author's other Claude Code tooling, built for the same unattended, overnight workflow oss-launchbot schedules posts for.
+- [shiftgear](https://github.com/Arthur031221/shiftgear): Routes the agent sessions that build these projects. oss-launchbot schedules how their launches get announced.
+- [agentleaks](https://github.com/Arthur031221/agentleaks): Reads local agent history the same general area of the workspace that oss-launchbot pulls launch kits from.
+
 ## Contributing and license
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Licensed under MIT. Copyright 2026 Arthur.
